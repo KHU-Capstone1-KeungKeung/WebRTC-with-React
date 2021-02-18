@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import io from "socket.io-client";
 import logo from './logo.svg';
 import './App.css';
 
@@ -20,10 +21,26 @@ const SOCKET_SERVER_URL = "http://localhost:8080";
 function App() {
     const videoState = useRef(true);
     const audioState = useRef(true);
-    const pcRef = useRef<RTCPeerConnection>(null);
-    const localVideoRef = useRef<HTMLVideoElement>(null);
-    const remoteVideoRef = useRef<HTMLVideoElement>(null);
+    const socketRef = useRef(null);
+    const pcRef = useRef(null);
+    const localVideoRef = useRef(null);
+    const remoteVideoRef = useRef(null);
 
+    useEffect(() => {
+        // 소켓 연결
+        socketRef.current = io.connect(SOCKET_SERVER_URL);
+        // webRTC 커넥션 생성
+        pcRef.current = new RTCPeerConnection(pc_config);
+
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+            }
+            if (pcRef.current) {
+                pcRef.current.close();
+            }
+        };
+    }, []);
 
     return (
         <div>
