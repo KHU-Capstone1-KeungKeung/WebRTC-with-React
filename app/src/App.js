@@ -52,12 +52,43 @@ function App() {
             }
         };
 
+        const createAnswer = async (sdp) => {
+            if (!(pcRef.current && socketRef.current)) return;
+            try {
+                // 상대방의 SessionDescription 저장
+                await pcRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
+                console.log("answer set remote description success");
+                // 자신의 SessionDescription 가 담긴 answer 생성
+                const mySdp = await pcRef.current.createAnswer({
+                    offerToReceiveVideo: videoState.current,
+                    offerToReceiveAudio: audioState.current,
+                });
+                console.log("create answer");
+
+                // 자신의 SessionDescription 저장
+                await pcRef.current.setLocalDescription(new RTCSessionDescription(mySdp));
+
+                // 자신의 SessionDescription 담아 answer 이벤트 발생
+                socketRef.current.emit("answer", mySdp);
+            } catch (e) {
+                console.error(e);
+            }
+        };
+
         // offer 생성
         socketRef.current.on("createOffer", (allUsers) => {
             if (allUsers.length > 0) {
                 createOffer();
             }
         });
+
+        // offer 을 받을 경우 create answer 생성
+        socketRef.current.on("getOffer", (sdp) => {
+            //console.log(sdp);
+            console.log("get offer");
+            createAnswer(sdp);
+        });
+
 
         return () => {
             if (socketRef.current) {
