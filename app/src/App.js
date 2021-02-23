@@ -89,6 +89,20 @@ function App() {
             createAnswer(sdp);
         });
 
+        // answer 을 받은경우 상대방의 SessionDescription 저장
+        socketRef.current.on("getAnswer", (sdp) => {
+            console.log("get answer");
+            if (!pcRef.current) return;
+            pcRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
+            //console.log(sdp);
+        });
+
+        // ICE candidate 정보 가져오기
+        socketRef.current.on( "getCandidate", async (candidate) => {
+            if (!pcRef.current) return;
+            await pcRef.current.addIceCandidate(new RTCIceCandidate(candidate));
+            console.log("candidate add success");
+        });
 
         return () => {
             if (socketRef.current) {
