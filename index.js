@@ -44,7 +44,7 @@ io.on("connection", (socket) => {
 
         console.log(usersInThisRoom);
 
-        io.sockets.to(socket.id).emit("all_users", usersInThisRoom);
+        io.sockets.to(socket.id).emit("createOffer", usersInThisRoom);
     });
 
     socket.on("offer", (sdp) => {
