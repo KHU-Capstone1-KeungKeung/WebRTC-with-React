@@ -10,6 +10,7 @@ app.use(cors());
 const PORT = process.env.PORT || 8080;
 
 let users = {};
+let user_id = [];
 
 let socketToRoom = {};
 
@@ -17,32 +18,29 @@ const maximum = 2;
 
 io.on("connection", (socket) => {
     socket.on("join_room", (data) => {
-
-        const sessionId = "1234" // user.id, 중복 x
-
-        // 로그인 및 권한 확인 필요
-
-        if (users[sessionId]) {
-            const length = users[sessionId].length;
+        if (users[data.room]) {
+            if (user_id[0] === socket.id) {
+                return;
+            }
+            const length = users[data.room].length;
             if (length === maximum) {
                 socket.to(socket.id).emit("room_full");
                 return;
             }
-            users[sessionId].push({ id: socket.id });
+            users[data.room].push({ id: socket.id });
         } else {
-            users[sessionId] = [{ id: socket.id }];
+            users[data.room] = [{ id: socket.id }];
+            user_id.push(socket.id)
         }
-        socketToRoom[socket.id] = sessionId;
+        socketToRoom[socket.id] = data.room;
 
-        socket.join(sessionId);
+        socket.join(data.room);
         console.log(`[${socketToRoom[socket.id]}]: ${socket.id} enter`);
 
-        // 본인을 제외한 룸의 유저 정보 전송
-        const usersInThisRoom = users[sessionId].filter(
+        const usersInThisRoom = users[data.room].filter(
             (user) => user.id !== socket.id
         );
-
-        console.log(usersInThisRoom);
+        console.log(user_id)
 
         io.sockets.to(socket.id).emit("createOffer", usersInThisRoom);
     });
@@ -75,7 +73,7 @@ io.on("connection", (socket) => {
             }
         }
         socket.broadcast.to(room).emit("user_exit", { id: socket.id });
-        console.log(users);
+        console.log(users)
     });
 });
 

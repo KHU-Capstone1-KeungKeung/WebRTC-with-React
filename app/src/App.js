@@ -26,7 +26,6 @@ function App() {
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
 
-
     const createOffer = async () => {
         console.log("create offer");
         if (!(pcRef.current && socketRef.current)) return;
@@ -118,7 +117,7 @@ function App() {
 
             // socket.io 를 통해 방에 참여 이벤트 발생
             socketRef.current.emit("join_room", {
-                // room: "",  // 해당 내용을 서버를 통해 user session 정보로 처리
+                room: "1234",
             });
         } catch (e) {
             console.error(e);
@@ -140,7 +139,7 @@ function App() {
 
         // offer 을 받을 경우 create answer 생성
         socketRef.current.on("getOffer", (sdp) => {
-            //console.log(sdp);
+            console.log(sdp);
             console.log("get offer");
             createAnswer(sdp);
         });
@@ -150,7 +149,7 @@ function App() {
             console.log("get answer");
             if (!pcRef.current) return;
             pcRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
-            //console.log(sdp);
+            console.log(sdp);
         });
 
         // ICE candidate 정보 가져오기
