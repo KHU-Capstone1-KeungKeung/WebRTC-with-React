@@ -40,7 +40,7 @@ io.on("connection", (socket) => {
         const usersInThisRoom = users[data.room].filter(
             (user) => user.id !== socket.id
         );
-        console.log(user_id)
+        console.log(usersInThisRoom)
 
         io.sockets.to(socket.id).emit("createOffer", usersInThisRoom);
     });
@@ -67,13 +67,17 @@ io.on("connection", (socket) => {
         if (room) {
             room = room.filter((user) => user.id !== socket.id);
             users[roomID] = room;
+
+            io.sockets.to(socket.id).emit("disconnectRoom", room);
             if (room.length === 0) {
                 delete users[roomID];
                 return;
             }
         }
+
         socket.broadcast.to(room).emit("user_exit", { id: socket.id });
-        console.log(users)
+
+        console.log(users[roomID])
     });
 });
 

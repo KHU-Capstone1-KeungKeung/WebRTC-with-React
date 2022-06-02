@@ -159,6 +159,10 @@ function App() {
             console.log("candidate add success");
         });
 
+        socketRef.current.on("disconnectRoom", () => {
+            remoteVideoRef.current = null;
+        })
+
         setVideoTracks();
 
         return () => {
