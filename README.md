@@ -2,10 +2,10 @@
 
 ## How to Use
 ```
-cd Typescript-ReactJS-WebRTC-1-1-P2P
+cd WebRTC-with-React
 npm install
 node index.js
-cd web
+cd app
 npm install
 npm start
 ```
